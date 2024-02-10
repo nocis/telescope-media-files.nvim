@@ -52,7 +52,7 @@ M.media_preview = defaulter(function(opts)
         end
       end
         
-      if showBinary then
+      if not showBinary then
           if get_file_stat(filename).type == "directory" then
             return list_dir(filename)
           end
