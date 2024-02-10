@@ -32,26 +32,26 @@ M.media_preview = defaulter(function(opts)
       return Path:new(from_entry.path(entry, false, false)):normalize(cwd)
     end,
     get_command = opts.get_command or function(entry, status)
-      local et = vim.api.nvim_get_option_value("filetype", { buf = entry.bufnr })
+      local filename = from_entry.path(entry, true, false)
+      local get_file_stat = function(filename)
+        return vim.loop.fs_stat(vim.fn.expand(filename)) or {}
+      end
+      local list_dir = (function()
+        if vim.fn.has "win32" == 1 then
+          return function(dirname)
+             return { "cmd.exe", "/c", "dir", vim.fn.expand(dirname) }
+          end
+        else
+          return function(dirname)
+             return { "ls", "-la", vim.fn.expand(dirname) }
+          end
+        end
+      end)()
+        
+      local et = get_file_stat(filename).type
       print(et)
       local fset = {"png", "jpg", "gif", "mp4", "webm", "pdf"}
       if fset[et] == nil then
-          local filename = from_entry.path(entry, true, false)
-          local get_file_stat = function(filename)
-            return vim.loop.fs_stat(vim.fn.expand(filename)) or {}
-          end
-          local list_dir = (function()
-            if vim.fn.has "win32" == 1 then
-              return function(dirname)
-                return { "cmd.exe", "/c", "dir", vim.fn.expand(dirname) }
-              end
-            else
-              return function(dirname)
-                return { "ls", "-la", vim.fn.expand(dirname) }
-              end
-            end
-          end)()
-          
           if get_file_stat(filename).type == "directory" then
             return list_dir(filename)
           end
