@@ -42,7 +42,7 @@ M.media_preview = defaulter(function(opts)
           end
       end)()
         
-      local et =  vim.filetype.match({ filename = vim.fn.expand(filename) })
+      local et = filename:match("^.+%.(.+)$") 
       print(et,vim.fn.expand(filename))
       local fset = {"png", "jpg", "gif", "mp4", "webm", "pdf"}
       if fset[et] == nil then
