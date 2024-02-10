@@ -43,7 +43,6 @@ M.media_preview = defaulter(function(opts)
       end)()
         
       local et = filename:match("^.+%.(.+)$") 
-      et = et:lower()
       -- print(et,vim.fn.expand(filename))
       local fset = {"png", "jpg", "gif", "mp4", "webm", "pdf"}
       local showBinary = false 
