@@ -37,15 +37,9 @@ M.media_preview = defaulter(function(opts)
         return vim.loop.fs_stat(vim.fn.expand(filename)) or {}
       end
       local list_dir = (function()
-        if vim.fn.has "win32" == 1 then
-          return function(dirname)
-             return { "cmd.exe", "/c", "dir", vim.fn.expand(dirname) }
-          end
-        else
           return function(dirname)
              return { "ls", "-la", vim.fn.expand(dirname) }
           end
-        end
       end)()
         
       local et = get_file_stat(filename).type
