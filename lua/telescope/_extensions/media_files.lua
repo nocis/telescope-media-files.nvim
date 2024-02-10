@@ -43,7 +43,7 @@ M.media_preview = defaulter(function(opts)
       end)()
         
       local et =  vim.filetype.match({ filename = vim.fn.expand(filename) })
-      print(et,filename)
+      print(et,vim.fn.expand(filename))
       local fset = {"png", "jpg", "gif", "mp4", "webm", "pdf"}
       if fset[et] == nil then
           if get_file_stat(filename).type == "directory" then
