@@ -24,9 +24,12 @@ local image_stretch = 250
 M.base_directory=""
 M.media_preview = defaulter(function(opts)
   return previewers.new_termopen_previewer {
-    get_command = opts.get_command or function(entry)
+    get_command = opts.get_command or function(entry, status)
       local tmp_table = vim.split(entry.value,"\t");
-      local preview = opts.get_preview_window()
+      local win_id = status.layout.preview and status.layout.preview.winid
+      local height = vim.api.nvim_win_get_height(win_id)
+      local lnum = entry.lnum or 0
+        
       opts.cwd = opts.cwd and vim.fn.expand(opts.cwd) or vim.loop.cwd()
       if vim.tbl_isempty(tmp_table) then
         return {"echo", ""}
@@ -34,10 +37,10 @@ M.media_preview = defaulter(function(opts)
       return {
         M.base_directory .. '/scripts/vimg' ,
         string.format([[%s/%s]], opts.cwd, tmp_table[1]),
-        preview.col ,
-        preview.line + 1 ,
-        preview.width ,
-        preview.height,
+        0 ,
+        lnum + 1 ,
+        250 ,
+        height,
         image_stretch
       }
     end
