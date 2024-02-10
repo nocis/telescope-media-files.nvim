@@ -30,6 +30,7 @@ M.media_preview = defaulter(function(opts)
       local tmp_table = vim.split(entry.value,"\t");
       local win_id = status.layout.preview and status.layout.preview.winid
       local height = vim.api.nvim_win_get_height(win_id)
+      local width = vim.api.nvim_win_get_width(win_id)
       local lnum = entry.lnum or 0
         
       opts.cwd = opts.cwd and vim.fn.expand(opts.cwd) or vim.loop.cwd()
@@ -40,8 +41,8 @@ M.media_preview = defaulter(function(opts)
         base_directory .. '/scripts/vimg' ,
         tmp_table[1],
         0 ,
-        lnum + 1 ,
-        250 ,
+        lnum,
+        width ,
         height,
         image_stretch
       }
