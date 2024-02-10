@@ -136,5 +136,6 @@ return require('telescope').register_extension {
   end,
   exports = {
     media_files = M.media_files
+    media_preview = M.media_preview
   },
 }
