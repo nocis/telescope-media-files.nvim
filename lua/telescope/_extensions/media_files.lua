@@ -14,6 +14,8 @@ local finders = require('telescope.finders')
 local pickers = require('telescope.pickers')
 local previewers = require('telescope.previewers')
 local conf = require('telescope.config').values
+local Path = require("plenary.path")
+local from_entry = require("telescope.from_entry")
 
 local M = {}
 
@@ -23,29 +25,73 @@ local image_stretch = 250
 
 M.base_directory=""
 M.media_preview = defaulter(function(opts)
+  local cwd = opts.cwd or vim.loop.cwd()
   return previewers.new_termopen_previewer {
+    title = "File Preview",
+    dyn_title = function(_, entry)
+      return Path:new(from_entry.path(entry, false, false)):normalize(cwd)
+    end,
     get_command = opts.get_command or function(entry, status)
-      local sourced_file = require('plenary.debug_utils').sourced_filepath()
-      local base_directory = vim.fn.fnamemodify(sourced_file, ":h:h:h:h")
-      local tmp_table = vim.split(entry.value,"\t");
-      local win_id = status.layout.preview and status.layout.preview.winid
-      local height = vim.api.nvim_win_get_height(win_id)
-      local width = vim.api.nvim_win_get_width(win_id)
-      local lnum = entry.lnum or 0
+      local et = vim.api.nvim_buf_get_option(entry.bufnr, "buftype")
+      local fset = {"png", "jpg", "gif", "mp4", "webm", "pdf"}
+      if fset[et] == nil then
+          local filename = from_entry.path(entry, true, false)
+          local get_file_stat = function(filename)
+            return vim.loop.fs_stat(vim.fn.expand(filename)) or {}
+          end
+          local list_dir = (function()
+            if vim.fn.has "win32" == 1 then
+              return function(dirname)
+                return { "cmd.exe", "/c", "dir", vim.fn.expand(dirname) }
+              end
+            else
+              return function(dirname)
+                return { "ls", "-la", vim.fn.expand(dirname) }
+              end
+            end
+          end)()
+          
+          if get_file_stat(filename).type == "directory" then
+            return list_dir(filename)
+          end
+
+          if 1 == vim.fn.executable "file" then
+            local output = utils.get_os_command_output { "file", "--mime-type", "-b", filename }
+            local mime_type = vim.split(output[1], "/")[1]
+            if mime_type ~= "text" then
+              return { "echo", "Binary file found. These files cannot be displayed!" }
+            end
+          end
+          
+          return {
+            "cat",
+            "--",
+            vim.fn.expand(filename),
+          }
+         
+      else
+        local sourced_file = require('plenary.debug_utils').sourced_filepath()
+        local base_directory = vim.fn.fnamemodify(sourced_file, ":h:h:h:h")
+        local tmp_table = vim.split(entry.value,"\t");
+        local win_id = status.layout.preview and status.layout.preview.winid
+        local height = vim.api.nvim_win_get_height(win_id)
+        local width = vim.api.nvim_win_get_width(win_id)
+        local lnum = entry.lnum or 0
         
-      opts.cwd = opts.cwd and vim.fn.expand(opts.cwd) or vim.loop.cwd()
-      if vim.tbl_isempty(tmp_table) then
-        return {"echo", ""}
+        opts.cwd = opts.cwd and vim.fn.expand(opts.cwd) or vim.loop.cwd()
+        if vim.tbl_isempty(tmp_table) then
+          return {"echo", ""}
+        end
+        return {
+          base_directory .. '/scripts/vimg' ,
+          tmp_table[1],
+          0 ,
+          lnum,
+          width ,
+          height,
+          image_stretch
+        } 
       end
-      return {
-        base_directory .. '/scripts/vimg' ,
-        tmp_table[1],
-        0 ,
-        lnum,
-        width ,
-        height,
-        image_stretch
-      }
     end
   }
 end, {})
