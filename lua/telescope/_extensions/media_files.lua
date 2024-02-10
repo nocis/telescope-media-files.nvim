@@ -33,6 +33,7 @@ M.media_preview = defaulter(function(opts)
     end,
     get_command = opts.get_command or function(entry, status)
       local et = vim.api.nvim_get_option_value("filetype", { buf = entry.bufnr })
+      error(et)
       local fset = {"png", "jpg", "gif", "mp4", "webm", "pdf"}
       if fset[et] == nil then
           local filename = from_entry.path(entry, true, false)
