@@ -42,10 +42,17 @@ M.media_preview = defaulter(function(opts)
           end
       end)()
         
-      local et = filename:match("^.+%.(.+)$") 
-      print(et,vim.fn.expand(filename))
+      local et = string.lower(filename:match("^.+%.(.+)$"))
+      -- print(et,vim.fn.expand(filename))
       local fset = {"png", "jpg", "gif", "mp4", "webm", "pdf"}
-      if fset[et] == nil then
+      local showBinary = false 
+      for index, value in ipairs(fset) do
+        if value == et then
+            showBinary = true
+        end
+      end
+        
+      if showBinary then
           if get_file_stat(filename).type == "directory" then
             return list_dir(filename)
           end
