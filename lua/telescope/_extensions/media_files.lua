@@ -135,7 +135,7 @@ return require('telescope').register_extension {
     image_stretch = ext_config.image_stretch or 250
   end,
   exports = {
-    media_files = M.media_files
+    media_files = M.media_files,
     media_preview = M.media_preview
   },
 }
