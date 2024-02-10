@@ -25,6 +25,8 @@ M.base_directory=""
 M.media_preview = defaulter(function(opts)
   return previewers.new_termopen_previewer {
     get_command = opts.get_command or function(entry, status)
+      local sourced_file = require('plenary.debug_utils').sourced_filepath()
+      local base_directory = vim.fn.fnamemodify(sourced_file, ":h:h:h:h")
       local tmp_table = vim.split(entry.value,"\t");
       local win_id = status.layout.preview and status.layout.preview.winid
       local height = vim.api.nvim_win_get_height(win_id)
@@ -35,7 +37,7 @@ M.media_preview = defaulter(function(opts)
         return {"echo", ""}
       end
       return {
-        M.base_directory .. '/scripts/vimg' ,
+        base_directory .. '/scripts/vimg' ,
         string.format([[%s/%s]], opts.cwd, tmp_table[1]),
         0 ,
         lnum + 1 ,
