@@ -38,7 +38,7 @@ M.media_preview = defaulter(function(opts)
       end
       return {
         base_directory .. '/scripts/vimg' ,
-        string.format([[%s/%s]], opts.cwd, tmp_table[1]),
+        tmp_table[1],
         0 ,
         lnum + 1 ,
         250 ,
